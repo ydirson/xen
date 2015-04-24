@@ -748,7 +748,7 @@ void __init efi_multiboot2(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
     if ( gop )
         efi_set_gop_mode(gop, gop_mode);
 
-    efi_exit_boot(ImageHandle, SystemTable);
+    efi_exit_boot(ImageHandle, SystemTable, true);
 }
 
 /*
