@@ -386,6 +386,9 @@ struct p2m_domain {
     /* Cursor for iterating over the p2m on teardown. */
     unsigned long      teardown_gfn;
 #endif /* CONFIG_HVM */
+
+    /* Reserved space */
+    uint64_t _rsvd_livepatch[2];
 };
 
 /* get host p2m table */

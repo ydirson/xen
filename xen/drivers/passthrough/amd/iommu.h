@@ -106,6 +106,9 @@ struct amd_iommu {
     int enabled;
 
     struct list_head ats_devices;
+
+    /* Reserved space */
+    uint64_t _rsvd_livepatch[2];
 };
 
 struct ivrs_unity_map {

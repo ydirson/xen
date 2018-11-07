@@ -74,7 +74,7 @@ static void decode_featureset(const uint32_t *features,
     unsigned int i;
 
     /* If this trips, you probably need to extend leaf_info[] above. */
-    BUILD_BUG_ON(ARRAY_SIZE(leaf_info) != FEATURESET_NR_ENTRIES);
+    BUILD_BUG_ON(ARRAY_SIZE(leaf_info) != (FEATURESET_NR_ENTRIES - 4));
     BUILD_BUG_ON(ARRAY_SIZE(feature_names) != FEATURESET_NR_ENTRIES * 32);
 
     printf("%-"COL_ALIGN"s        ", name);
