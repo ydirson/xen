@@ -19,7 +19,7 @@ PYTHON_INTERPRETER	:= $(word 1,$(shell which python3 python python2 2>/dev/null)
 export PYTHON		?= $(PYTHON_INTERPRETER)
 
 export BASEDIR := $(CURDIR)
-export XEN_ROOT := $(BASEDIR)/..
+export XEN_ROOT := $(realpath $(BASEDIR)/..)
 
 # Do not use make's built-in rules and variables
 MAKEFLAGS += -rR
@@ -219,6 +219,8 @@ ifneq ($(CONFIG_CC_IS_CLANG),y)
 # but has an excessively large symbol table.
 CFLAGS += -Wa,--strip-local-absolute
 endif
+
+CFLAGS += -ffile-prefix-map=$(XEN_ROOT)=.
 
 AFLAGS += -D__ASSEMBLY__
 
