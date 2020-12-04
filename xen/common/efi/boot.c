@@ -114,7 +114,6 @@ static CHAR16 *FormatDec(UINT64 Val, CHAR16 *Buffer);
 static CHAR16 *FormatHex(UINT64 Val, UINTN Width, CHAR16 *Buffer);
 static void  DisplayUint(UINT64 Val, INTN Width);
 static CHAR16 *wstrcpy(CHAR16 *d, const CHAR16 *s);
-static void noreturn blexit(const CHAR16 *str);
 static void PrintErrMesg(const CHAR16 *mesg, EFI_STATUS ErrCode);
 static char *get_value(const struct file *cfg, const char *section,
                               const char *item);
@@ -331,7 +330,7 @@ static bool __init match_guid(const EFI_GUID *guid1, const EFI_GUID *guid2)
            !memcmp(guid1->Data4, guid2->Data4, sizeof(guid1->Data4));
 }
 
-static void __init noreturn blexit(const CHAR16 *str)
+void __init noreturn blexit(const CHAR16 *str)
 {
     if ( str )
         PrintStr(str);
