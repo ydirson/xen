@@ -137,6 +137,9 @@ struct ns16550_config {
         param_pericom_2port,
         param_pericom_4port,
         param_pericom_8port,
+        param_exar_xr17v352,
+        param_exar_xr17v354,
+        param_exar_xr17v358,
     } param;
 };
 
@@ -153,6 +156,8 @@ struct ns16550_config_param {
     unsigned int uart_offset;
     unsigned int first_offset;
 };
+
+static void enable_exar_enhanced_bits(const struct ns16550 *uart);
 
 /*
  * Create lookup tables for specific devices. It is assumed that if
@@ -232,7 +237,37 @@ static const struct ns16550_config_param __initconst uart_param[] = {
         .lsr_mask = UART_LSR_THRE,
         .bar0 = 1,
         .max_ports = 8,
-    }
+    },
+    [param_exar_xr17v352] = {
+        .base_baud = 7812500,
+        .uart_offset = 0x400,
+        .reg_width = 1,
+        .fifo_size = 256,
+        .lsr_mask = UART_LSR_THRE,
+        .bar0 = 1,
+        .mmio = 1,
+        .max_ports = 2,
+    },
+    [param_exar_xr17v354] = {
+        .base_baud = 7812500,
+        .uart_offset = 0x400,
+        .reg_width = 1,
+        .fifo_size = 256,
+        .lsr_mask = UART_LSR_THRE,
+        .bar0 = 1,
+        .mmio = 1,
+        .max_ports = 4,
+    },
+    [param_exar_xr17v358] = {
+        .base_baud = 7812500,
+        .uart_offset = 0x400,
+        .reg_width = 1,
+        .fifo_size = 256,
+        .lsr_mask = UART_LSR_THRE,
+        .bar0 = 1,
+        .mmio = 1,
+        .max_ports = 8,
+    },
 };
 static const struct ns16550_config __initconst uart_config[] =
 {
@@ -457,7 +492,25 @@ static const struct ns16550_config __initconst uart_config[] =
         .vendor_id = PCI_VENDOR_ID_PERICOM,
         .dev_id = 0x7958,
         .param = param_pericom_8port
-    }
+    },
+    /* Exar Corp. XR17V352 Dual PCIe UART */
+    {
+        .vendor_id = PCI_VENDOR_ID_EXAR,
+        .dev_id = 0x0352,
+        .param = param_exar_xr17v352
+    },
+    /* Exar Corp. XR17V354 Quad PCIe UART */
+    {
+        .vendor_id = PCI_VENDOR_ID_EXAR,
+        .dev_id = 0x0354,
+        .param = param_exar_xr17v354
+    },
+    /* Exar Corp. XR17V358 Octal PCIe UART */
+    {
+        .vendor_id = PCI_VENDOR_ID_EXAR,
+        .dev_id = 0x0358,
+        .param = param_exar_xr17v358
+    },
 };
 #endif
 
@@ -657,6 +710,11 @@ static void ns16550_setup_preirq(struct ns16550 *uart)
 
     /* Handle the DesignWare 8250 'busy-detect' quirk. */
     handle_dw_usr_busy_quirk(uart);
+
+#ifdef CONFIG_HAS_PCI
+    /* Enable Exar "Enhanced function bits" */
+    enable_exar_enhanced_bits(uart);
+#endif
 
     /* Line control and baud-rate generator. */
     ns_write_reg(uart, UART_LCR, lcr | UART_LCR_DLAB);
@@ -1212,6 +1270,28 @@ pci_uart_config(struct ns16550 *uart, bool_t skip_amt, unsigned int idx)
 
     return 0;
 }
+
+static void enable_exar_enhanced_bits(const struct ns16550 *uart)
+{
+    uint8_t efr;
+
+    switch ( uart->param - uart_param )
+    {
+    case param_exar_xr17v352:
+    case param_exar_xr17v354:
+    case param_exar_xr17v358:
+        /*
+         * Exar XR17V35x cards ignore setting MCR[2] (hardware flow control)
+         * unless "Enhanced control bits" is enabled.
+         * The below checks for a 2, 4 or 8 port UART, following Linux driver.
+         */
+        efr = ns_read_reg(uart, UART_XR_EFR);
+        efr |= UART_EFR_ECB;
+        ns_write_reg(uart, UART_XR_EFR, efr);
+        break;
+    }
+}
+
 #endif
 
 /*
