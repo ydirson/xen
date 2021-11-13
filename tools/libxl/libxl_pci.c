@@ -597,7 +597,7 @@ bool libxl__is_igd_vga_passthru(libxl__gc *gc,
         pt_device = sysfs_dev_get_device(gc, pcidev);
 
         if (pt_vendor == 0xffff || pt_device == 0xffff ||
-            pt_vendor != 0x8086)
+            (pt_vendor != 0x8086 && pt_vendor != 0x1002))
             continue;
 
         if (sysfs_dev_get_class(gc, pcidev, &class))
