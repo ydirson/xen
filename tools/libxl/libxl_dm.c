@@ -2286,6 +2286,7 @@ void libxl__spawn_stub_dm(libxl__egc *egc, libxl__stub_dm_spawn_state *sdss)
     dm_config->b_info.max_maptrack_frames = guest_config->b_info.max_maptrack_frames;
 
     dm_config->b_info.u.pv.features = "";
+    libxl_defbool_set(&dm_config->b_info.u.pv.e820_host, true);
 
     dm_config->b_info.device_model_version =
         guest_config->b_info.device_model_version;
